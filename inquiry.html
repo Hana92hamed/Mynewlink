@@ -1,0 +1,66 @@
+‏<!DOCTYPE html>
+‏<html lang="ar">
+‏<head>
+‏<meta charset="UTF-8">
+‏<title>استعلام عن عميل</title>
+‏<style>
+‏body { font-family: Arial, sans-serif; direction: rtl; text-align: center; background: #f5f5f5; }
+‏.container { margin: 50px auto; width: 80%; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+‏.nav a { margin: 10px; text-decoration: none; color: #007BFF; }
+‏#result { margin-top: 20px; text-align: right; }
+‏</style>
+‏</head>
+‏<body>
+
+‏<div class="container">
+‏<h1>استعلام عن عميل</h1>
+‏<div class="nav">
+‏    <a href="index.html">الرئيسية</a>
+‏</div>
+
+‏<select id="clientSelect">
+‏    <option value="">-- اختر عميل --</option>
+‏</select>
+
+‏<div id="result"></div>
+‏</div>
+
+‏<script>
+‏let clients = [];
+
+‏fetch('https://sheetdb.io/api/v1/3kv1zi8nzfyyf')
+‏    .then(res => res.json())
+‏    .then(data => {
+‏        clients = data;
+‏        const select = document.getElementById('clientSelect');
+‏        clients.forEach((client, index) => {
+‏            const option = document.createElement('option');
+‏            option.value = index;
+‏            option.textContent = client.name;
+‏            select.appendChild(option);
+        });
+    });
+
+‏document.getElementById('clientSelect').addEventListener('change', () => {
+‏    const index = document.getElementById('clientSelect').value;
+‏    const result = document.getElementById('result');
+‏    if (index === '') {
+‏        result.innerHTML = '';
+‏        return;
+    }
+‏    const client = clients[index];
+‏    result.innerHTML = `
+‏        <h3>بيانات العميل:</h3>
+‏        <p><strong>الاسم:</strong> ${client.name}</p>
+‏        <p><strong>رقم الجوال:</strong> ${client.phone}</p>
+‏        <p><strong>رقم السند:</strong> ${client.contract}</p>
+‏        <p><strong>سعر الجهاز:</strong> ${client.devicePrice} ريال</p>
+‏        <p><strong>المبلغ المتفق عليه:</strong> ${client.agreedPrice} ريال</p>
+‏        <p><strong>القسط الشهري:</strong> ${client.monthlyPayment} ريال</p>
+‏        <p><strong>الملاحظات:</strong> ${client.notes || '---'}</p>
+    `;
+});
+‏</script>
+
+‏</body>
+‏</html>
