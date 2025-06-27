@@ -1,0 +1,90 @@
+‏<!DOCTYPE html>
+‏<html lang="ar">
+‏<head>
+‏<meta charset="UTF-8">
+‏<title>قسم العملاء</title>
+‏<style>
+‏body { font-family: Arial, sans-serif; direction: rtl; text-align: center; background: #f5f5f5; }
+‏.container { margin: 50px auto; width: 95%; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+‏table, th, td { border: 1px solid #ddd; border-collapse: collapse; padding: 10px; }
+‏th { background-color: #eee; }
+‏.completed { color: green; font-weight: bold; }
+‏.nav a { margin: 10px; text-decoration: none; color: #007BFF; }
+‏</style>
+‏</head>
+‏<body>
+
+‏<div class="container">
+‏<h1>قسم العملاء</h1>
+‏<div class="nav">
+‏    <a href="index.html">الرئيسية</a>
+‏</div>
+
+‏<table style="width:100%">
+‏<thead>
+‏<tr>
+‏<th>اسم العميل</th>
+‏<th>رقم الجوال</th>
+‏<th>رقم السند</th>
+‏<th>سعر الجهاز</th>
+‏<th>المبلغ المتفق عليه</th>
+‏<th>القسط الشهري</th>
+‏<th>إجمالي الدفعات</th>
+‏<th>الملاحظات</th>
+‏</tr>
+‏</thead>
+‏<tbody id="clientsTable"></tbody>
+‏</table>
+‏</div>
+
+‏<script>
+‏let clients = [];
+‏let operations = [];
+
+// تحميل بيانات العملاء أولاً
+‏fetch('https://sheetdb.io/api/v1/3kv1zi8nzfyyf')
+‏    .then(res => res.json())
+‏    .then(data => {
+‏        clients = data;
+‏        loadOperations();
+    })
+‏    .catch(err => console.error('خطأ في تحميل بيانات العملاء:', err));
+
+// تحميل بيانات العمليات بعد تحميل العملاء
+‏function loadOperations() {
+‏    fetch('https://sheetdb.io/api/v1/op7rvvt9q0ppj')
+‏        .then(res => res.json())
+‏        .then(data => {
+‏            operations = data;
+‏            displayClients();
+        })
+‏        .catch(err => console.error('خطأ في تحميل بيانات العمليات:', err));
+}
+
+‏function displayClients() {
+‏    const table = document.getElementById('clientsTable');
+‏    table.innerHTML = '';
+‏    clients.forEach(client => {
+        // حساب إجمالي الدفعات بناءً على الاسم
+‏        const totalPayments = operations
+‏            .filter(op => op.name === client.name)
+‏            .reduce((sum, op) => sum + parseFloat(op.amount || 0), 0);
+
+‏        const nameClass = totalPayments >= parseFloat(client.agreedPrice || 0) ? 'class="completed"' : '';
+
+‏        table.innerHTML += `<tr>
+‏            <td ${nameClass}>${client.name}</td>
+‏            <td>${client.phone}</td>
+‏            <td>${client.contract}</td>
+‏            <td>${client.devicePrice} ريال</td>
+‏            <td>${client.agreedPrice} ريال</td>
+‏            <td>${client.monthlyPayment} ريال</td>
+‏            <td>${totalPayments} ريال</td>
+‏            <td>${client.notes || '---'}</td>
+‏        </tr>`;
+    });
+}
+‏</script>
+
+‏</body>
+‏</html>
