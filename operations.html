@@ -1,0 +1,93 @@
+‏<!DOCTYPE html>
+‏<html lang="ar">
+‏<head>
+‏<meta charset="UTF-8">
+‏<title>العمليات</title>
+‏<style>
+‏body { font-family: Arial, sans-serif; direction: rtl; text-align: center; background: #f5f5f5; }
+‏.container { margin: 50px auto; width: 90%; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+‏table, th, td { border: 1px solid #ddd; border-collapse: collapse; padding: 10px; }
+‏.nav a { margin: 10px; text-decoration: none; color: #007BFF; }
+‏</style>
+‏</head>
+‏<body>
+
+‏<div class="container">
+‏<h1>العمليات</h1>
+‏<div class="nav">
+‏    <a href="index.html">الرئيسية</a>
+‏</div>
+
+‏<select id="clientSelect"></select><br><br>
+‏<input type="number" id="paidAmount" placeholder="القسط المدفوع"><br>
+‏<button onclick="addOperation()">إضافة العملية</button>
+
+‏<h3>سجل العمليات</h3>
+‏<table style="width:100%">
+‏<thead>
+‏<tr>
+‏<th>اسم العميل</th>
+‏<th>القسط المدفوع</th>
+‏<th>تاريخ العملية</th>
+‏</tr>
+‏</thead>
+‏<tbody id="operationsTable"></tbody>
+‏</table>
+‏</div>
+
+‏<script>
+‏let clients = [];
+
+‏fetch('https://sheetdb.io/api/v1/3kv1zi8nzfyyf')
+‏    .then(res => res.json())
+‏    .then(data => {
+‏        clients = data;
+‏        const select = document.getElementById('clientSelect');
+‏        clients.forEach(client => {
+‏            const option = document.createElement('option');
+‏            option.value = client.name;
+‏            option.textContent = client.name;
+‏            select.appendChild(option);
+        });
+    });
+
+‏function addOperation() {
+‏    const name = document.getElementById('clientSelect').value;
+‏    const amount = document.getElementById('paidAmount').value;
+‏    const date = new Date().toLocaleDateString();
+
+‏    if (!name || !amount) {
+‏        alert("الرجاء تعبئة جميع الحقول.");
+‏        return;
+    }
+
+‏    fetch('https://sheetdb.io/api/v1/op7rvvt9q0ppj', {
+‏        method: 'POST',
+‏        headers: { 'Content-Type': 'application/json' },
+‏        body: JSON.stringify({ data: [{ name, amount, date }] })
+    })
+‏    .then(res => res.json())
+‏    .then(() => {
+‏        alert("تمت إضافة العملية بنجاح!");
+‏        document.getElementById('paidAmount').value = '';
+‏        loadOperations();
+    });
+}
+
+‏function loadOperations() {
+‏    fetch('https://sheetdb.io/api/v1/op7rvvt9q0ppj')
+‏        .then(res => res.json())
+‏        .then(data => {
+‏            const table = document.getElementById('operationsTable');
+‏            table.innerHTML = '';
+‏            data.reverse().forEach(op => {
+‏                table.innerHTML += `<tr><td>${op.name}</td><td>${op.amount}</td><td>${op.date}</td></tr>`;
+            });
+        });
+}
+
+‏loadOperations();
+‏</script>
+
+‏</body>
+‏</html>
