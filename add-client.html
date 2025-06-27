@@ -1,0 +1,65 @@
+‏<!DOCTYPE html>
+‏<html lang="ar">
+‏<head>
+‏<meta charset="UTF-8">
+‏<title>إضافة عميل جديد</title>
+‏<style>
+‏body { font-family: Arial, sans-serif; direction: rtl; text-align: center; background: #f5f5f5; }
+‏.container { margin: 50px auto; width: 80%; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+‏input, button { padding: 10px; margin: 10px; width: 80%; }
+‏.nav a { margin: 10px; text-decoration: none; color: #007BFF; }
+‏</style>
+‏</head>
+‏<body>
+
+‏<div class="container">
+‏<h1>إضافة عميل جديد</h1>
+‏<div class="nav">
+‏    <a href="index.html">الرئيسية</a>
+‏</div>
+
+‏<input type="text" id="name" placeholder="الاسم الرباعي"><br>
+‏<input type="text" id="phone" placeholder="رقم الجوال"><br>
+‏<input type="text" id="contract" placeholder="رقم السند"><br>
+‏<input type="number" id="devicePrice" placeholder="سعر الجهاز"><br>
+‏<input type="number" id="agreedPrice" placeholder="السعر المتفق عليه"><br>
+‏<input type="number" id="monthlyPayment" placeholder="القسط الشهري"><br>
+‏<input type="text" id="notes" placeholder="الملاحظات"><br>
+‏<button onclick="addClient()">إضافة العميل</button>
+
+‏<p id="message"></p>
+‏</div>
+
+‏<script>
+‏function addClient() {
+‏    const name = document.getElementById('name').value.trim();
+‏    const phone = document.getElementById('phone').value.trim();
+‏    const contract = document.getElementById('contract').value.trim();
+‏    const devicePrice = document.getElementById('devicePrice').value;
+‏    const agreedPrice = document.getElementById('agreedPrice').value;
+‏    const monthlyPayment = document.getElementById('monthlyPayment').value;
+‏    const notes = document.getElementById('notes').value.trim();
+
+‏    if (!name || !phone || !contract || !devicePrice || !agreedPrice) {
+‏        alert("جميع الحقول الأساسية مطلوبة.");
+‏        return;
+    }
+
+‏    fetch('https://sheetdb.io/api/v1/3kv1zi8nzfyyf', {
+‏        method: 'POST',
+‏        headers: { 'Content-Type': 'application/json' },
+‏        body: JSON.stringify({ data: [{
+‏            name, phone, contract, devicePrice, agreedPrice, monthlyPayment, notes
+        }] })
+    })
+‏    .then(res => res.json())
+‏    .then(() => {
+‏        document.getElementById('message').innerText = "تمت إضافة العميل بنجاح!";
+‏        document.querySelectorAll('input').forEach(el => el.value = '');
+    })
+‏    .catch(() => alert("حدث خطأ أثناء الإضافة."));
+}
+‏</script>
+
+‏</body>
+‏</html>
